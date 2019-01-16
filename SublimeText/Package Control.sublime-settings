@@ -1,0 +1,26 @@
+{
+	"bootstrapped": true,
+	"in_process_packages":
+	[
+	],
+	"installed_packages":
+	[
+		"A File Icon",
+		"Ada",
+		"Build Next",
+		"C++ Completions",
+		"C++ Starting Kit",
+		"Fix Mac Path",
+		"Node Completions",
+		"Nodejs",
+		"Package Control",
+		"PackageSync",
+		"Pug",
+		"Swift",
+		"Theme - Soda",
+		"TypeScript",
+		"TypeScript Syntax",
+		"TypescriptCompletion",
+		"Vue Syntax Highlight"
+	]
+}

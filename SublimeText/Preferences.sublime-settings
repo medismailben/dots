@@ -1,0 +1,13 @@
+{
+	"color_scheme": "Packages/Color Scheme - Default/Celeste.sublime-color-scheme",
+	"font_size": 17,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"rulers":
+	[
+	],
+	"theme": "Adaptive.sublime-theme",
+	"word_wrap": false
+}

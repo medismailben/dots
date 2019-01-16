@@ -1,0 +1,12 @@
+[submodule "oh-my-zsh"]
+	path = oh-my-zsh
+	url = https://github.com/robbyrussell/oh-my-zsh.git
+[submodule "zsh-custom/geometry"]
+	path = zsh-custom/geometry
+	url = https://github.com/geometry-zsh/geometry.git
+[submodule "zsh-custom/zsh-autosuggestions"]
+	path = zsh-custom/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
+[submodule "vim/bundle/Vundle.vim"]
+	path = vim/bundle/Vundle.vim
+	url = https://github.com/VundleVim/Vundle.vim.git
