@@ -1,22 +1,22 @@
 [core]
-	excludesfile = ~/.gitignore
+  excludesfile = ~/.gitignore
 [color]
-	ui = auto
-	branch = auto
-	diff = auto
-	interactive = auto
-	status = auto
+  ui = auto
+  branch = auto
+  diff = auto
+  interactive = auto
+  status = auto
 [commit]
-	verbose = true
+  verbose = true
 [pull]
-	rebase = true
+  rebase = true
 [branch]
-	autosetuprebase = always
+  autosetuprebase = always
 [push]
-	default = simple
+  default = simple
 [user]
-	name = Mohamed Ismail BENNANI
-	email = bennan_a@epita.fr
-	signingkey = DC509540A8B22083
+  signingkey = 9040401522D38F4E
+  name = Med Ismail Bennani
+  email = medismail.bennani@gmail.com
 [mergetool]
-	keepBackup = true
+  keepBackup = true
