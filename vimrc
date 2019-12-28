@@ -6,36 +6,40 @@ set nocompatible    " Disable vi retro-compatibility
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'mhartington/oceanic-next'
-
-Plug 'prabirshrestha/async.vim'       " Asynchronous
-Plug 'prabirshrestha/vim-lsp'         " LSP server
-Plug 'ajh17/vimcompletesme'
+Plug 'mhartington/oceanic-next'       " Colorscheme
 
 Plug 'Chiel92/vim-autoformat'         " Code formatter integration
 Plug 'Xuyuanp/nerdtree-git-plugin'    " Versioning status
 Plug 'airblade/vim-gitgutter'         " Git changes in the Sign column
-Plug 'zivyangll/git-blame.vim'        " Git blame on the status bar
-Plug 'tpope/vim-fugitive'             " Git wrapper
+Plug 'ajh17/vimcompletesme'           " Leightweight autocompletion engine
 Plug 'ciaranm/detectindent'           " Indent according to the current file
 Plug 'itchyny/lightline.vim'          " Lightweight powerline
 Plug 'jiangmiao/auto-pairs'           " Brackets, parentheses, quotes completion
 Plug 'junegunn/fzf',                  { 'do': 'yes \| ./install' }
 Plug 'junegunn/fzf.vim'               " Command-line fuzzy finder
+Plug 'ludovicchabant/vim-gutentags'   " Auto-regenerate ctags on file changes
 Plug 'majutsushi/tagbar'              " Files ctags on a sidebar
 Plug 'mbbill/undotree'                " Undo history
 Plug 'moll/vim-bbye'                  " Close all files without quitting vim
+Plug 'pboettch/vim-cmake-syntax'      " CMake syntax highlight
+Plug 'prabirshrestha/async.vim'       " Asynchronous
+Plug 'prabirshrestha/vim-lsp'         " LSP server
 Plug 'scrooloose/nerdtree'            " Tree explorer
 Plug 'sheerun/vim-polyglot'           " Lazy loading language pack
+Plug 'solarnz/arcanist.vim'           " Arcanist support
+Plug 'tmhedberg/SimpylFold'           " Python code folding
 Plug 'tpope/vim-commentary'           " Comment shortcut
+Plug 'tpope/vim-fugitive'             " Git wrapper
 Plug 'xolox/vim-misc'                 " Miscellaneous vim scripts
 Plug 'xolox/vim-session'              " Session manager
 Plug 'yuttie/comfortable-motion.vim'  " Physics-based scolling
-Plug 'pboettch/vim-cmake-syntax'      " CMake syntax highlight
-Plug 'tmhedberg/SimpylFold'           " Python code folding
+Plug 'zivyangll/git-blame.vim'        " Git blame on the status bar
 
+Plug 'vim-scripts/a.vim'              " Source/Header switcher
+Plug 'vim-scripts/commentary.vim'     " Comment toggle
 Plug 'vim-scripts/DoxygenToolkit.vim' " Doxygen style comments
 Plug 'vim-scripts/errormarker.vim'    " Show compile error in-place
+Plug 'vim-scripts/SearchComplete'     " Search tab completion
 
 Plug 'JDevlieghere/llvm.vim'          " LLVM specific settings
 
@@ -64,8 +68,8 @@ highlight GitGutterChangeDelete guibg=NONE ctermbg=NONE
 highlight GitGutterDelete       guibg=NONE ctermbg=NONE
 
 if has("gui_running")
-    "set guifont=Source\ Code\ Pro\ Medium:h13
-    set antialias
+  "set guifont=Source\ Code\ Pro\ Medium:h13
+  set antialias
 end
 
 " ---------------------------------------------------------------------------- "
@@ -76,6 +80,7 @@ set autoread                    " Auto reload file after external command
 set backspace=indent,eol,start  " Delete over line breaks
 set binary                      " Enable binary support
 set colorcolumn=80,120          " Show ruler columns
+set textwidth=80                " Wrap line after 80 characteres.
 set encoding=utf-8              " Use UTF-8 encoding
 set hidden                      " Hide buffers instead of closing them
 set laststatus=2                " Always display the status line
@@ -147,10 +152,10 @@ set completeopt=longest,menuone,preview
 " History
 set history=1000                " Remember more commands
 if has('persistent_undo')
-    set undofile                " Persistent undo
-    set undodir=~/.vim/undo     " Location to store undo history
-    set undolevels=1000         " Max number of changes
-    set undoreload=10000        " Max lines to save for undo on a buffer reload
+  set undofile                " Persistent undo
+  set undodir=~/.vim/undo     " Location to store undo history
+  set undolevels=1000         " Max number of changes
+  set undoreload=10000        " Max lines to save for undo on a buffer reload
 endif
 
 
@@ -176,8 +181,8 @@ nnoremap <silent> <C-l> :nohl<CR><C-l>
 
 " Watch my .vimrc
 augroup reload_vimrc
-    autocmd!
-    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+  autocmd!
+  autocmd BufWritePost $MYVIMRC source $MYVIMRC
 augroup end
 
 " ---------------------------------------------------------------------------- "
@@ -190,16 +195,30 @@ let g:session_autosave = 'no'
 "" lightline
 let g:lightline = {
       \ 'colorscheme': 'wombat',
+      \ 'component_function': {
+      \   'filename': 'LightlineFilename',
       \ }
+      \ }
+
+
+function! LightlineFilename()
+  let root = fnamemodify(get(b:, 'git_dir'), ':h')
+  let path = expand('%:p')
+  if path[:len(root)-1] ==# root
+    return path[len(root)+1:]
+  endif
+  return expand('%')
+endfunction
+
 
 "" fzf
 let g:fzf_buffers_jump=1
-nnoremap \ :Rg<SPACE>
-vnoremap _ y :Rg <C-R>"<CR>
-nnoremap _ yaw :Rg <C-R>"<CR>
-map <C-f> :Files<CR>
-map <C-b> :Buffers<CR>
-map <C-t> :Tags<CR>
+"nnoremap \ :Rg<SPACE>
+"vnoremap _ y :Rg <C-R>"<CR>
+"nnoremap _ yaw :Rg <C-R>"<CR>
+"map <C-f> :Files<CR>
+"map <C-b> :Buffers<CR>
+"map <C-t> :Tags<CR>
 
 "" detectindent
 let g:detectindent_preferred_expandtab=1
@@ -216,34 +235,8 @@ nnoremap <leader>tt :TagbarToggle<CR>
 
 "" Doxygen
 let g:DoxygenToolkit_commentType="C++"
-
 "" nerdtree-git-plugin
 autocmd StdinReadPre * let s:std_in=1
-map <C-n> :NERDTreeToggle<CR>
-
-"" nerdtree-git-plugin
-let g:NERDTreeIndicatorMapCustom = {
-    \ "Modified"  : "𝚫",
-    \ "Staged"    : "✚",
-    \ "Untracked" : "✭",
-    \ "Renamed"   : "➜",
-    \ "Unmerged"  : "═",
-    \ "Deleted"   : "✖",
-    \ "Dirty"     : "✗",
-    \ "Clean"     : "✔︎",
-    \ 'Ignored'   : '☒',
-    \ "Unknown"   : "?"
-    \ }"
-
-"" nerdtree-fzf
-
-if exists("g:loaded_nerdtree_fzf_menuitem")
-  finish
-endif
-
-let g:loaded_nerdtree_fzf_menuitem = 1
-let s:haskdeinit = system("ps -e") =~ 'kdeinit'
-let s:hasdarwin = system("uname -s") =~ 'Darwin'
 
 " LSP
 let g:lsp_signs_enabled=1
@@ -253,25 +246,41 @@ nnoremap <leader>lh :LspHover<CR>
 nnoremap <leader>lr :LspReferences<CR>
 
 if executable('clangd')
-    augroup lsp_clangd
-        autocmd!
-        autocmd User lsp_setup call lsp#register_server({
-                    \ 'name': 'clangd',
-                    \ 'cmd': {server_info->['clangd']},
-                    \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp'],
-                    \ })
-        autocmd FileType c setlocal omnifunc=lsp#complete
-        autocmd FileType cpp setlocal omnifunc=lsp#complete
-        autocmd FileType objc setlocal omnifunc=lsp#complete
-        autocmd FileType objcpp setlocal omnifunc=lsp#complete
-    augroup end
+  augroup lsp_clangd
+    autocmd!
+    autocmd User lsp_setup call lsp#register_server({
+          \ 'name': 'clangd',
+          \ 'cmd': {server_info->['clangd']},
+          \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp'],
+          \ })
+    autocmd FileType c setlocal omnifunc=lsp#complete
+    autocmd FileType cpp setlocal omnifunc=lsp#complete
+    autocmd FileType objc setlocal omnifunc=lsp#complete
+    autocmd FileType objcpp setlocal omnifunc=lsp#complete
+  augroup end
 endif
 
 if executable('rls')
-    au User lsp_setup call lsp#register_server({
+  au User lsp_setup call lsp#register_server({
         \ 'name': 'rls',
         \ 'cmd': {server_info->['rustup', 'run', 'nightly', 'rls']},
         \ 'whitelist': ['rust'],
         \ })
-        autocmd FileType rs setlocal omnifunc=lsp#complete
+  autocmd FileType rs setlocal omnifunc=lsp#complete
 endif
+
+" Tags
+let g:gutentags_cache_dir = '~/.cache/gutentags'
+set statusline+=%{gutentags#statusline()}
+"Open the current tag in a new tab, or a vertical split.
+map <C-]> :tab split<CR>:execute "tag " . expand( "<cword>" )<CR>zz<C-w>p
+
+
+" Teach a.vim about llvm project layout.
+let g:alternateSearchPath = 'reg:|/source|/include/lldb|g,reg:|/include/lldb|/source|g,reg:|/include/swift|/lib|g,reg:|/lib|/include/swift|g,reg:|/include/clang|/lib|g,reg:|/lib|/include/clang|g,reg:|/include/llvm|/lib|g,reg:|/lib|/include/llvm|g'
+let g:alternateNoDefaultAlternate = 1
+
+"Resize splits when the window is resized.
+autocmd VimResized * exe "normal! \<c-w>="
+
+set guitablabel=\[%N\]\ %t\ %M
