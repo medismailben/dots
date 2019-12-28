@@ -2,7 +2,7 @@
 
 function dotfiles {
   dot_list="alias bashrc clang-format gitconfig gitignore SublimeText \
-    oh-my-zsh vim vimrc tmux.conf zshrc zsh-custom zsh-update"
+    oh-my-zsh vim vimrc tmux.conf tmux zshrc zsh-custom zsh-update"
 
   xcode="$HOME/Library/Developer/Xcode/UserData/FontAndColorThemes"
 
