@@ -1,70 +1,100 @@
-#!/bin/sh
+#!/bin/bash
+
+# The line below detect script's parent directory. $0 is the part of the launch command that doesn't contain the arguments
+# 3 situations will cause dirname $0 to fail:
+# Situation 1: user launches script while in script dir ( $0=./script)
+# Situation 2: different dir but ./ is used to launch script (ex. $0=/path_to/./script)
+# Situation 3: different dir but relative path used to launch script
+
+function detect_path {
+  BASEDIR=$(dirname "$0")
+
+  if [ "$BASEDIR" = "." ]; then BASEDIR="$(pwd)";fi # fix for situation1
+
+  _B2=${BASEDIR:$((${#BASEDIR}-2))}; B_=${BASEDIR::1}; B_2=${BASEDIR::2}; B_3=${BASEDIR::3} # <- bash only
+  if [ "$_B2" = "/." ]; then BASEDIR=${BASEDIR::$((${#BASEDIR}-1))};fi #fix for situation2 # <- bash only
+  if [ "$B_" != "/" ]; then  #fix for situation3 #<- bash only
+    if [ "$B_2" = "./" ]; then
+      #covers ./relative_path/(./)script
+      if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/${BASEDIR:2}"; else BASEDIR="/${BASEDIR:2}";fi
+    else
+      #covers relative_path/(./)script and ../relative_path/(./)script, using ../relative_path fails if current path is a symbolic link
+      if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/$BASEDIR"; else BASEDIR="/$BASEDIR";fi
+      fi
+    fi
+  }
 
 function dotfiles {
-  dot_list="alias bashrc clang-format gitconfig gitignore SublimeText \
-    oh-my-zsh vim vimrc tmux.conf tmux zshrc zsh-custom zsh-update"
+  dot_list="clang-format gitconfig gitignore"
 
-  xcode="$HOME/Library/Developer/Xcode/UserData/FontAndColorThemes"
-
-  if [ $platform = "Darwin" ]; then
-    dot_list="${dot_list} iterm"
-    mkdir -p $xcode
-    ln -sv Chalk.xccolortheme $xcode
-  elif [ $platform = "Linux"]; then
+  if [ $platform = "Linux" ]; then
     dot_list="${dot_list} config Xdefaults.d"
+  else
+    xcode
   fi
+
+  shell
+  vim
+  tmux
 
   for f in $dot_list; do
     rm -rf "$HOME/.$f"
-    ln -sv "$HOME/Documents/dotfiles/$f" "$HOME/.$f"
+    ln -sfhv "$BASEDIR/$f" "$HOME/.$f"
   done
 }
 
 function apps {
-  curl -s http://www.getmacapps.com/raw/821jvawx | sh
-  rm -rf "$HOME/getmacapps_temp"
+  if [ $platform = "Darwin" ]; then
+    curl -s http://www.getmacapps.com/raw/821jvawx | sh
+    rm -rf "$HOME/getmacapps_temp"
+  fi
 }
 
-function brew {
-  # TODO: Add linux brew support
-  curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install > install.rb
-  # TODO: Add patch to remove macOS Developer Tools install if Xcode is detected
-  chmod +x install.rb
-  ./install.rb
+function homebrew {
+  if [ ! -x "$(which brew)" ]; then
+    curl -fsSL \
+      https://raw.githubusercontent.com/Homebrew/install/master/install \
+          > "$BASEDIR/brew.rb"
+    if [ $platform = "Darwin" ]; then
+      # TODO: Add patch to remove macOS Developer Tools install if Xcode is detected
+      exit
+    fi
+    chmod +x "$BASEDIR/brew.rb"
+    "$BASEDIR/brew.rb"
+  fi
 
-  sudo chown -R $(whoami) /usr/local/Frameworks     \
-                          /usr/local/bin            \
-                          /usr/local/etc            \
-                          /usr/local/lib            \
-                          /usr/local/sbin           \
-                          /usr/local/share          \
-                          /usr/local/share/doc      \
-                          /usr/local/share/locale   \
-                          /usr/local/share/man      \
-                          /usr/local/share/man/man1 \
-                          /usr/local/share/man/man2 \
-                          /usr/local/share/man/man3 \
-                          /usr/local/share/man/man4 \
-                          /usr/local/share/man/man5 \
-                          /usr/local/share/man/man7 \
-                          /usr/local/share/man/man8
+  function set_permission {
+    if [ ! -d "$1" ]; then
+      echo "Skipped $1"
+      return
+    fi
 
-  chmod u+w /usr/local/Frameworks     \
-            /usr/local/bin            \
-            /usr/local/etc            \
-            /usr/local/lib            \
-            /usr/local/sbin           \
-            /usr/local/share          \
-            /usr/local/share/doc      \
-            /usr/local/share/locale   \
-            /usr/local/share/man      \
-            /usr/local/share/man/man1 \
-            /usr/local/share/man/man2 \
-            /usr/local/share/man/man3 \
-            /usr/local/share/man/man4 \
-            /usr/local/share/man/man5 \
-            /usr/local/share/man/man7 \
-            /usr/local/share/man/man8
+    echo "Setting permission for $1"
+    sudo chown -R $(whoami) "$1"
+    chmod u+w "$1"
+  }
+
+  declare -a brew_paths
+  brew_paths+=("/usr/local/Frameworks")
+  brew_paths+=("/usr/local/bin")
+  brew_paths+=("/usr/local/etc")
+  brew_paths+=("/usr/local/lib")
+  brew_paths+=("/usr/local/sbin")
+  brew_paths+=("/usr/local/share")
+  brew_paths+=("/usr/local/share/doc")
+  brew_paths+=("/usr/local/share/locale")
+  brew_paths+=("/usr/local/share/man")
+  brew_paths+=("/usr/local/share/man/man1")
+  brew_paths+=("/usr/local/share/man/man2")
+  brew_paths+=("/usr/local/share/man/man3")
+  brew_paths+=("/usr/local/share/man/man4")
+  brew_paths+=("/usr/local/share/man/man5")
+  brew_paths+=("/usr/local/share/man/man7")
+  brew_paths+=("/usr/local/share/man/man8")
+
+  for brew_path in "${brew_paths[@]}"; do
+    set_permission $brew_path
+  done
 
   if [ -d "/usr/local/share/swig" ]; then
     sudo chmod 777 "/usr/local/share/swig"
@@ -74,14 +104,87 @@ function brew {
   youtube-dl vim ctags-exuberant"
   cask_list="authy discord"
 
-  brew install "$brew_list"
+  brew install $brew_list
 
   if [ $platform = "Darwin" ]; then
-    brew cask install "$cask_list"
+    brew cask install $cask_list
   fi
 }
 
-function cargo {
+function shell {
+  shell_list="alias bashrc oh-my-zsh zshrc zplug"
+  omz_path="$BASEDIR/oh-my-zsh"
+  zplug_path="$BASEDIR/zplug"
+
+  if [ ! -x "$(which zsh)" ]; then
+    echo "Installing ZShell"
+    brew install zsh
+  fi
+
+  if [ ! -d $omz_path ]; then
+    git clone https://github.com/ohmyzsh/ohmyzsh.git $omz_path
+  else
+    git -C $omz_path pull origin master
+  fi
+
+  if [ ! -d $zplug_path ]; then
+    git clone https://github.com/zplug/zplug.git $zplug_path
+  else
+    git -C $zplug_path pull origin master
+  fi
+
+  for f in $shell_list; do
+    rm -rf "$HOME/.$f"
+    ln -sfhv "$BASEDIR/$f" "$HOME/.$f"
+  done
+
+  zsh -c "source $BASEDIR/zshrc"
+}
+
+function vim {
+  ln -sfhv "$BASEDIR/vimrc" "$HOME/.vimrc"
+
+  if [ ! -d "$HOME/.vim" ]; then
+    mkdir -p "$HOME/.vim"
+  fi
+
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  }
+
+function tmux {
+  if [ ! -d "$BASEDIR/tmux/plugins" ]; then
+    mkdir -p "$BASEDIR/tmux/plugins"
+  fi
+
+  tpm_path="$BASEDIR/tmux/plugins/tpm"
+
+  if [ ! -d $tpm_path ]; then
+    git clone https://github.com/tmux-plugins/tpm $tpm_path
+  else
+    git -C $tpm_path pull origin master
+  fi
+
+  ln -sfhv "$BASEDIR/tmux.conf" "$HOME/.tmux.conf"
+  ln -sfhv "$BASEDIR/tmux" "$HOME/.tmux"
+}
+
+function sublime {
+  ln -sfhv "$BASEDIR/SublimeText" "$HOME/.SublimeText"
+}
+
+function xcode {
+  xcode="$HOME/Library/Developer/Xcode/UserData/FontAndColorThemes"
+
+  if [ $platform = "Darwin" ]; then
+    dot_list="${dot_list} iterm"
+    mkdir -p $xcode
+    ln -sfhv "Chalk.xccolortheme" $xcode
+  fi
+}
+
+
+function rust {
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
   crate_list="fd-find ripgrep bat tokei"
@@ -105,7 +208,7 @@ function arcanist {
     fi
   done
 
-  ln -svf $cellar_path/arcanist/bin/arc $bin_path/arc
+  ln -sfhv $cellar_path/arcanist/bin/arc $bin_path/arc
 }
 
 platform="$(uname)"
@@ -114,6 +217,9 @@ echo "$platform platform detected!"
 if [ ! -z $DEBUG ]; then
   set -x
 fi
+
+detect_path
+source "$BASEDIR/alias"
 
 if [ $# == "0" ]; then
   echo "Installing dotfiles"

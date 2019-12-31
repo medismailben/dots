@@ -1,3 +1,6 @@
-vim/
-tmux/
 .DS_Store
+brew.rb
+oh-my-zsh/
+tmux/
+vim/
+zplug/

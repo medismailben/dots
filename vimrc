@@ -17,6 +17,11 @@ Plug 'itchyny/lightline.vim'          " Lightweight powerline
 Plug 'jiangmiao/auto-pairs'           " Brackets, parentheses, quotes completion
 Plug 'junegunn/fzf',                  { 'do': 'yes \| ./install' }
 Plug 'junegunn/fzf.vim'               " Command-line fuzzy finder
+Plug 'junegunn/goyo.vim'              " Distration-free writing
+Plug 'junegunn/gv.vim'                " Display git commits log
+Plug 'junegunn/limelight.vim'         " Hyperfocus section highlighter
+Plug 'junegunn/vim-emoji'             " Emoji support
+Plug 'junegunn/vim-slash'             " Enhancing in-buffer search experience
 Plug 'ludovicchabant/vim-gutentags'   " Auto-regenerate ctags on file changes
 Plug 'majutsushi/tagbar'              " Files ctags on a sidebar
 Plug 'mbbill/undotree'                " Undo history
