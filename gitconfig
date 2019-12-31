@@ -20,3 +20,6 @@
   email = medismail.bennani@gmail.com
 [mergetool]
   keepBackup = true
+[alias]
+  patch = show HEAD -U999999
+  sign = rebase --exec 'git commit --amend --no-edit -n -S' -i
