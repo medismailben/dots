@@ -41,6 +41,8 @@ function dotfiles {
     rm -rf "$HOME/.$f"
     ln -sfhv "$BASEDIR/$f" "$HOME/.$f"
   done
+
+  ln -sfhv "$BASEDIR" "$HOME/.dots"
 }
 
 function apps {

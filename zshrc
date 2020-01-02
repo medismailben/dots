@@ -19,12 +19,13 @@ if [ -d $HOME/.zplug ] && [ -f $HOME/.zplug/init.zsh ]; then
   source $HOME/.zplug/init.zsh
 
   # NOTE: ZShell Plugins
+  zplug "b4b4r07/enhancd", use:init.sh
+  zplug "k4rthik/git-cal", as:command
+  zplug "plugins/git",   from:oh-my-zsh
   zplug "zsh-users/zsh-autosuggestions"
   zplug "zsh-users/zsh-completions"
-  zplug "zsh-users/zsh-syntax-highlighting", defer:2
   zplug "zsh-users/zsh-history-substring-search"
-  zplug "k4rthik/git-cal", as:command
-  zplug "b4b4r07/enhancd", use:init.sh
+  zplug "zsh-users/zsh-syntax-highlighting", defer:2
   zplug 'geometry-zsh/geometry', as:theme
 
   # Install plugins if there are plugins that have not been installed
