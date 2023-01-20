@@ -17,12 +17,11 @@ export DISPLAY=:0
 
 export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/sbin:$PATH
+export PATH="/opt/homebrew/bin:$PATH"
 export PATH=$HOME/.cargo/bin:$PATH
-export PATH="/usr/local/opt/bison/bin:$PATH"
-export PATH="/usr/local/opt/ruby/bin:$PATH"
-export PATH="/usr/local/opt/swig@3/bin:$PATH"
 
 export HOMEBREW_NO_ANALYTICS=1
+export SCCACHE_CACHE_SIZE="100G"
 
 arc_path="/usr/local/Cellar/arcanist"
 
@@ -32,6 +31,24 @@ fi
 
 [ -x "$(command -v bat)" ] && alias cat="bat"
 
+move_to_trash () {
+  if [ -d ~/.Trash ]; then
+    mkdir -p ~/.Trash
+  fi
+
+  for arg do
+    shift
+    [ "$arg" = "-rf" ] && continue
+    [ "$arg" = "-r" ] && continue
+    [ "$arg" = "-f" ] && continue
+    set -- "$@" "$arg"
+  done
+
+  mv "$@" ~/.Trash
+}
+
+alias ls="ls --color"
+alias rm="move_to_trash"
 alias cd="cd -P"
 
 alias dev='cd $DEV'
@@ -39,55 +56,10 @@ alias llvm='cd $LLVM'
 
 alias ga='git add '
 alias gs='git status'
-alias gc='git commit -s -S'
+alias gc='git commit -s'
 alias gp='git push '
 alias gd='git diff'
 alias gl='git log --graph --abbrev-commit --decorate --date=relative --all '
 alias go='git log --oneline --decorate --all '
 alias glo='git log --oneline --decorate '
 alias gop='git log --oneline --decorate --all --pretty="%C(yellow)%h %Cred%d %Creset%s %Cgreen%<(7)%aN%Creset"'
-
-export RPB_HOST=localhost
-export RPB_SOCKET=2222
-
-function rpbcopy {
-  if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
-    SESSION_TYPE=remote/ssh
-  else
-    case $(ps -o comm= -p $PPID) in
-    sshd|*/sshd) SESSION_TYPE=remote/ssh;;
-    esac
-  fi
-
-  if [ -z $SESSION_TYPE ]; then
-    echo "$0: Coping only work during remote session"
-    return 1
-  fi
-
-  if [ -z $(nc -z $RPB_HOST $RPB_SOCKET) ]; then
-    echo "$0: Socket $RPB_SOCKET is closed."
-    return 1
-  fi
-
-  cat - | nc $RPB_HOST $RPB_SOCKET
-}
-
-function rpbserver {
-  while :; do nc $RPB_HOST -l $RPB_SOCKET | pbcopy || break; done;
-}
-
-function ssh {
-  local opts=()
-  if [[ -n "${ZSH_VERSION:-}" ]]; then
-    opts=($(setopt))
-    setopt nonotify nomonitor
-  fi
-  rpbserver 1>/dev/null 2>&1 &
-  RPB_PID=$$
-  sleep 0.1
-  if [[ -n "${ZSH_VERSION:-}" ]]; then
-    setopt "${opts[@]}"
-  fi
-  command ssh "$@"
-  kill $RPB_PID
-}
