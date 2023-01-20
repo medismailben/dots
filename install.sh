@@ -14,15 +14,15 @@ function detect_path {
   _B2=${BASEDIR:$((${#BASEDIR}-2))}; B_=${BASEDIR::1}; B_2=${BASEDIR::2}; B_3=${BASEDIR::3} # <- bash only
   if [ "$_B2" = "/." ]; then BASEDIR=${BASEDIR::$((${#BASEDIR}-1))};fi #fix for situation2 # <- bash only
   if [ "$B_" != "/" ]; then  #fix for situation3 #<- bash only
-    if [ "$B_2" = "./" ]; then
-      #covers ./relative_path/(./)script
-      if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/${BASEDIR:2}"; else BASEDIR="/${BASEDIR:2}";fi
-    else
-      #covers relative_path/(./)script and ../relative_path/(./)script, using ../relative_path fails if current path is a symbolic link
-      if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/$BASEDIR"; else BASEDIR="/$BASEDIR";fi
-      fi
+  if [ "$B_2" = "./" ]; then
+    #covers ./relative_path/(./)script
+    if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/${BASEDIR:2}"; else BASEDIR="/${BASEDIR:2}";fi
+  else
+    #covers relative_path/(./)script and ../relative_path/(./)script, using ../relative_path fails if current path is a symbolic link
+    if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/$BASEDIR"; else BASEDIR="/$BASEDIR";fi
     fi
-  }
+  fi
+}
 
 function dotfiles {
   dot_list="clang-format gitconfig gitignore"
@@ -35,6 +35,9 @@ function dotfiles {
 
   shell
   vim
+  homebrew
+  rust
+  sublime
   tmux
 
   for f in $dot_list; do
@@ -45,24 +48,17 @@ function dotfiles {
   ln -sfhv "$BASEDIR" "$HOME/.dots"
 }
 
-function apps {
-  if [ $platform = "Darwin" ]; then
-    curl -s http://www.getmacapps.com/raw/821jvawx | sh
-    rm -rf "$HOME/getmacapps_temp"
+function install_homebrew {
+  /usr/bin/curl -L https://at.apple.com/get-liv -o /tmp/liv && chmod +x /tmp/liv
+  /tmp/liv brew install
+  if [ ! -x "$(which brew)" ]; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 }
 
 function homebrew {
   if [ ! -x "$(which brew)" ]; then
-    curl -fsSL \
-      https://raw.githubusercontent.com/Homebrew/install/master/install \
-          > "$BASEDIR/brew.rb"
-    if [ $platform = "Darwin" ]; then
-      # TODO: Add patch to remove macOS Developer Tools install if Xcode is detected
-      exit
-    fi
-    chmod +x "$BASEDIR/brew.rb"
-    "$BASEDIR/brew.rb"
+    install_homebrew
   fi
 
   function set_permission {
@@ -102,15 +98,7 @@ function homebrew {
     sudo chmod 777 "/usr/local/share/swig"
   fi
 
-  brew_list="tree cmake ninja swig clang-format htop nmap neofetch tmux
-  youtube-dl vim ctags-exuberant"
-  cask_list="authy discord"
-
-  brew install $brew_list
-
-  if [ $platform = "Darwin" ]; then
-    brew cask install $cask_list
-  fi
+  brew update && brew upgrade && brew bundle
 }
 
 function shell {
@@ -181,7 +169,7 @@ function xcode {
   if [ $platform = "Darwin" ]; then
     dot_list="${dot_list} iterm"
     mkdir -p $xcode
-    ln -sfhv "Chalk.xccolortheme" $xcode
+    ln -sfhv "$BASEDIR/Chalk.xccolortheme" "$xcode/Chalk.xccolortheme"
   fi
 }
 
@@ -189,28 +177,9 @@ function xcode {
 function rust {
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-  crate_list="fd-find ripgrep bat tokei"
+  crate_list="cargo-update fd-find ripgrep bat tokei sccache"
 
   cargo install $crate_list
-}
-
-function arcanist {
-  arc_list="libphutil arcanist"
-  cellar_path="/usr/local/Cellar"
-  bin_path="/usr/local/bin"
-
-  mkdir -p $cellar_path
-
-  for pkg in $arc_list; do
-    pkg_path=$cellar_path/$pkg
-    if [ ! -d $pkg_path ]; then
-      git clone https://github.com/phacility/$pkg.git $pkg_path
-    else
-      git -C $pkg_path pull origin master
-    fi
-  done
-
-  ln -sfhv $cellar_path/arcanist/bin/arc $bin_path/arc
 }
 
 platform="$(uname)"
