@@ -23,12 +23,6 @@ export PATH=$HOME/.cargo/bin:$PATH
 export HOMEBREW_NO_ANALYTICS=1
 export SCCACHE_CACHE_SIZE="100G"
 
-arc_path="/usr/local/Cellar/arcanist"
-
-if [ -d $arc_path ]; then
-  source $arc_path/resources/shell/bash-completion
-fi
-
 [ -x "$(command -v bat)" ] && alias cat="bat"
 
 move_to_trash () {
