@@ -31,6 +31,7 @@ function dotfiles {
     dot_list="${dot_list} config Xdefaults.d"
   else
     xcode
+    macos_defaults
   fi
 
   shell
@@ -46,6 +47,11 @@ function dotfiles {
   done
 
   ln -sfhv "$BASEDIR" "$HOME/.dots"
+}
+
+function macos_defaults {
+  defaults write com.apple.finder CreateDesktop false
+  killall Finder
 }
 
 function install_homebrew {
