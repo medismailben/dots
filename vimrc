@@ -240,7 +240,7 @@ let g:DoxygenToolkit_commentType="C++"
 "" nerdtree-git-plugin
 autocmd StdinReadPre * let s:std_in=1
 
-" LSP
+"" LSP
 function! s:on_lsp_buffer_enabled() abort
   setlocal omnifunc=lsp#complete
   setlocal signcolumn=yes
@@ -254,6 +254,12 @@ function! s:on_lsp_buffer_enabled() abort
   nmap <buffer> [g <plug>(lsp-previous-diagnostic)
   nmap <buffer> g] <plug>(lsp-next-diagnostic)
   nmap <buffer> K <plug>(lsp-hover)
+"" Fix Shell Folding
+set foldmethod=marker
+au FileType sh let g:sh_fold_enabled=5
+au FileType sh let g:is_bash=1
+au FileType sh set foldmethod=syntax
+
 
   let g:lsp_format_sync_timeout = 1000
 endfunction
