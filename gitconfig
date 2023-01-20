@@ -24,3 +24,4 @@
   patch = show HEAD -U999999
   sign = rebase --exec 'git commit --amend --no-edit -n -S' -i
   cp = cherry-pick
+  recommit = !git commit -eF $(git rev-parse --git-dir)/COMMIT_EDITMSG
