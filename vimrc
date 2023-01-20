@@ -9,6 +9,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'mhartington/oceanic-next'       " Colorscheme
 
 Plug 'Chiel92/vim-autoformat'         " Code formatter integration
+Plug 'JDevlieghere/llvm.vim'          " LLVM specific settings
 Plug 'Xuyuanp/nerdtree-git-plugin'    " Versioning status
 Plug 'airblade/vim-gitgutter'         " Git changes in the Sign column
 Plug 'ajh17/vimcompletesme'           " Leightweight autocompletion engine
@@ -22,7 +23,6 @@ Plug 'junegunn/gv.vim'                " Display git commits log
 Plug 'junegunn/limelight.vim'         " Hyperfocus section highlighter
 Plug 'junegunn/vim-emoji'             " Emoji support
 Plug 'junegunn/vim-slash'             " Enhancing in-buffer search experience
-Plug 'ludovicchabant/vim-gutentags'   " Auto-regenerate ctags on file changes
 Plug 'majutsushi/tagbar'              " Files ctags on a sidebar
 Plug 'mbbill/undotree'                " Undo history
 Plug 'moll/vim-bbye'                  " Close all files without quitting vim
@@ -31,22 +31,19 @@ Plug 'prabirshrestha/async.vim'       " Asynchronous
 Plug 'prabirshrestha/vim-lsp'         " LSP server
 Plug 'scrooloose/nerdtree'            " Tree explorer
 Plug 'sheerun/vim-polyglot'           " Lazy loading language pack
-Plug 'solarnz/arcanist.vim'           " Arcanist support
 Plug 'tmhedberg/SimpylFold'           " Python code folding
 Plug 'tpope/vim-commentary'           " Comment shortcut
 Plug 'tpope/vim-fugitive'             " Git wrapper
+Plug 'vim-scripts/DoxygenToolkit.vim' " Doxygen style comments
+Plug 'vim-scripts/SearchComplete'     " Search tab completion
+Plug 'vim-scripts/a.vim'              " Source/Header switcher
+Plug 'vim-scripts/commentary.vim'     " Comment toggle
+Plug 'vim-scripts/errormarker.vim'    " Show compile error in-place
+Plug 'vim-scripts/swig'
 Plug 'xolox/vim-misc'                 " Miscellaneous vim scripts
 Plug 'xolox/vim-session'              " Session manager
 Plug 'yuttie/comfortable-motion.vim'  " Physics-based scolling
 Plug 'zivyangll/git-blame.vim'        " Git blame on the status bar
-
-Plug 'vim-scripts/a.vim'              " Source/Header switcher
-Plug 'vim-scripts/commentary.vim'     " Comment toggle
-Plug 'vim-scripts/DoxygenToolkit.vim' " Doxygen style comments
-Plug 'vim-scripts/errormarker.vim'    " Show compile error in-place
-Plug 'vim-scripts/SearchComplete'     " Search tab completion
-
-Plug 'JDevlieghere/llvm.vim'          " LLVM specific settings
 
 call plug#end()
 
@@ -244,26 +241,54 @@ let g:DoxygenToolkit_commentType="C++"
 autocmd StdinReadPre * let s:std_in=1
 
 " LSP
-let g:lsp_signs_enabled=1
-nnoremap <leader>ld :LspDefinition<CR>
-nnoremap <leader>lf :LspDocumentFormat<CR>
-nnoremap <leader>lh :LspHover<CR>
-nnoremap <leader>lr :LspReferences<CR>
+function! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  setlocal signcolumn=yes
+  if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+  nmap <buffer> gd <plug>(lsp-definition)
+  nmap <buffer> gs <plug>(lsp-document-symbol-search)
+  nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
+  nmap <buffer> gr <plug>(lsp-references)
+  nmap <buffer> gi <plug>(lsp-implmentation)
+  nmap <buffer> <leader>rn <plug>(lsp-rename)
+  nmap <buffer> [g <plug>(lsp-previous-diagnostic)
+  nmap <buffer> g] <plug>(lsp-next-diagnostic)
+  nmap <buffer> K <plug>(lsp-hover)
 
-if executable('clangd')
-  augroup lsp_clangd
+  let g:lsp_format_sync_timeout = 1000
+endfunction
+
+" Swift-LSP
+if executable('sourcekit-lsp')
+  augroup lsp_sourcekit_lsp
     autocmd!
     autocmd User lsp_setup call lsp#register_server({
-          \ 'name': 'clangd',
-          \ 'cmd': {server_info->['clangd']},
-          \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp'],
+          \ 'name': 'sourcekit-lsp',
+          \ 'cmd': {server_info->['sourcekit-lsp']},
+          \ 'allowlist': ['swift', 'c', 'cpp', 'objc', 'objcpp', 'h'],
+          \ 'blocklist': ['def'],
           \ })
-    autocmd FileType c setlocal omnifunc=lsp#complete
-    autocmd FileType cpp setlocal omnifunc=lsp#complete
-    autocmd FileType objc setlocal omnifunc=lsp#complete
-    autocmd FileType objcpp setlocal omnifunc=lsp#complete
   augroup end
 endif
+
+" C++-LSP
+if executable('clangd')
+  augroup lsp_clang
+    autocmd!
+    autocmd User lsp_setup call lsp#register_server({
+          \ 'name': 'clandg',
+          \ 'cmd': {server_info->['clangd']},
+          \ 'allowlist': ['h', 'c', 'cpp', 'objc', 'objcpp'],
+          \ 'blocklist': ['def'],
+          \ })
+  augroup end
+endif
+
+augroup lsp_install
+  autocmd!
+  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+
 
 if executable('rls')
   au User lsp_setup call lsp#register_server({
@@ -275,10 +300,10 @@ if executable('rls')
 endif
 
 " Tags
-let g:gutentags_cache_dir = '~/.cache/gutentags'
-set statusline+=%{gutentags#statusline()}
-"Open the current tag in a new tab, or a vertical split.
-map <C-]> :tab split<CR>:execute "tag " . expand( "<cword>" )<CR>zz<C-w>p
+" let g:gutentags_cache_dir = '~/.cache/gutentags'
+" set statusline+=%{gutentags#statusline()}
+" "Open the current tag in a new tab, or a vertical split.
+" map <C-]> :tab split<CR>:execute "tag " . expand( "<cword>" )<CR>zz<C-w>p
 
 
 " Teach a.vim about llvm project layout.
