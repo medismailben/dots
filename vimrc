@@ -287,6 +287,10 @@ if executable('clangd')
           \ 'allowlist': ['h', 'c', 'cpp', 'objc', 'objcpp'],
           \ 'blocklist': ['def'],
           \ })
+    autocmd FileType c setlocal omnifunc=lsp#complete
+    autocmd FileType cpp setlocal omnifunc=lsp#complete
+    autocmd FileType objc setlocal omnifunc=lsp#complete
+    autocmd FileType objcpp setlocal omnifunc=lsp#complete
   augroup end
 endif
 
