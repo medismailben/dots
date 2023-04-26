@@ -15,9 +15,8 @@
 [push]
   default = simple
 [user]
-  signingkey = 9040401522D38F4E
   name = Med Ismail Bennani
-  email = medismail.bennani@gmail.com
+  email = ismail@bennani.ma
 [mergetool]
   keepBackup = true
 [alias]
