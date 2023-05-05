@@ -19,8 +19,21 @@
   email = ismail@bennani.ma
 [mergetool]
   keepBackup = true
+  prompt = false
 [alias]
   patch = show HEAD -U999999
   sign = rebase --exec 'git commit --amend --no-edit -n -S' -i
   cp = cherry-pick
   recommit = !git commit -eF $(git rev-parse --git-dir)/COMMIT_EDITMSG
+[difftool "Kaleidoscope"]
+  cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
+[mergetool "Kaleidoscope"]
+  cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
+  trustExitCode = true
+[diff]
+  tool = Kaleidoscope
+[difftool]
+  prompt = false
+  trustExitCode = true
+[merge]
+  tool = Kaleidoscope
