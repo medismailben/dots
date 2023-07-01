@@ -9,17 +9,20 @@
 function detect_path {
   BASEDIR=$(dirname "$0")
 
-  if [ "$BASEDIR" = "." ]; then BASEDIR="$(pwd)";fi # fix for situation1
+  if [ "$BASEDIR" = "." ]; then BASEDIR="$(pwd)"; fi # fix for situation1
 
-  _B2=${BASEDIR:$((${#BASEDIR}-2))}; B_=${BASEDIR::1}; B_2=${BASEDIR::2}; B_3=${BASEDIR::3} # <- bash only
-  if [ "$_B2" = "/." ]; then BASEDIR=${BASEDIR::$((${#BASEDIR}-1))};fi #fix for situation2 # <- bash only
-  if [ "$B_" != "/" ]; then  #fix for situation3 #<- bash only
-  if [ "$B_2" = "./" ]; then
-    #covers ./relative_path/(./)script
-    if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/${BASEDIR:2}"; else BASEDIR="/${BASEDIR:2}";fi
-  else
-    #covers relative_path/(./)script and ../relative_path/(./)script, using ../relative_path fails if current path is a symbolic link
-    if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/$BASEDIR"; else BASEDIR="/$BASEDIR";fi
+  _B2=${BASEDIR:$((${#BASEDIR} - 2))}
+  B_=${BASEDIR::1}
+  B_2=${BASEDIR::2}
+  B_3=${BASEDIR::3}                                                       # <- bash only
+  if [ "$_B2" = "/." ]; then BASEDIR=${BASEDIR::$((${#BASEDIR} - 1))}; fi #fix for situation2 # <- bash only
+  if [ "$B_" != "/" ]; then                                               #fix for situation3 #<- bash only
+    if [ "$B_2" = "./" ]; then
+      #covers ./relative_path/(./)script
+      if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/${BASEDIR:2}"; else BASEDIR="/${BASEDIR:2}"; fi
+    else
+      #covers relative_path/(./)script and ../relative_path/(./)script, using ../relative_path fails if current path is a symbolic link
+      if [ "$(pwd)" != "/" ]; then BASEDIR="$(pwd)/$BASEDIR"; else BASEDIR="/$BASEDIR"; fi
     fi
   fi
 }
@@ -146,7 +149,7 @@ function vim {
 
   curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  }
+}
 
 function tmux {
   if [ ! -d "$BASEDIR/tmux/plugins" ]; then
@@ -179,7 +182,6 @@ function xcode {
   fi
 }
 
-
 function rust {
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
@@ -200,7 +202,7 @@ function rust {
   crates+=("tokei")
   crates+=("zoxide --locked")
 
-  for crate in  $crates[@]; do cargo install $crate; done
+  for crate in $crates[@]; do cargo install $crate; done
 }
 
 platform="$(uname)"
