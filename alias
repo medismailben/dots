@@ -65,3 +65,5 @@ alias gl='git log --graph --abbrev-commit --decorate --date=relative --all '
 alias go='git log --oneline --decorate --all '
 alias glo='git log --oneline --decorate '
 alias gop='git log --oneline --decorate --all --pretty="%C(yellow)%h %Cred%d %Creset%s %Cgreen%<(7)%aN%Creset"'
+
+alias codenames="$(base64 -d  <<< eGNydW4gLXNkayBpcGhvbmVvcy5pbnRlcm5hbCBlbWJlZGRlZF9kZXZpY2VfbWFwIC1xdWVyeSAic2VsZWN0IGRpc3RpbmN0IFRhcmdldFR5cGUsIFByb2R1Y3RUeXBlLCBQbGF0Zm9ybU5hbWUsIEtlcm5lbE1hY2hvQXJjaGl0ZWN0dXJlLCBQcm9kdWN0RGVzY3JpcHRpb24gZnJvbSBUYXJnZXRzIG9yZGVyIGJ5IFByb2R1Y3RUeXBlIgo=)"
