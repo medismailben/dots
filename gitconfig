@@ -1,5 +1,7 @@
 [core]
   excludesfile = ~/.gitignore
+  hooksPath = /Users/mib/Developer/internal/dt-git-hooks/hooks
+  pager = delta
 [color]
   ui = auto
   branch = auto
@@ -32,8 +34,20 @@
   trustExitCode = true
 [diff]
   tool = Kaleidoscope
+  colorMoved = default
 [difftool]
   prompt = false
   trustExitCode = true
 [merge]
   tool = Kaleidoscope
+  conflictstyle = diff3
+[interactive]
+  diffFilter = delta --color-only
+[delta]
+  navigate = true    # use n and N to move between diff sections
+  light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+  side-by-side = true
+  line-numbers = true
+  hyperlinks = true
+  map-styles = bold purple => syntax magenta, bold cyan => syntax blue
+  diff-so-fancy = true
