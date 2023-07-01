@@ -183,9 +183,24 @@ function xcode {
 function rust {
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-  crate_list="cargo-update fd-find ripgrep bat tokei sccache"
+  declare -a crates
+  crates+=("bat")
+  crates+=("bottom")
+  crates+=("cargo-update")
+  crates+=("delta")
+  crates+=("du-dust")
+  crates+=("exa")
+  crates+=("fd-find")
+  crates+=("git-delta")
+  crates+=("gping")
+  crates+=("hyperfine")
+  crates+=("mcfly")
+  crates+=("ripgrep")
+  crates+=("sccache")
+  crates+=("tokei")
+  crates+=("zoxide --locked")
 
-  cargo install $crate_list
+  for crate in  $crates[@]; do cargo install $crate; done
 }
 
 platform="$(uname)"

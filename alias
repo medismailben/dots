@@ -23,7 +23,16 @@ export PATH=$HOME/.cargo/bin:$PATH
 export HOMEBREW_NO_ANALYTICS=1
 export SCCACHE_CACHE_SIZE="100G"
 
+# Rust binary utilities replacement
 [ -x "$(command -v bat)" ] && alias cat="bat"
+[ -x "$(command -v exa)" ] && alias ls="exa"
+[ -x "$(command -v exa)" ] && alias tree="exa -T"
+[ -x "$(command -v delta)" ] && alias diff="delta"
+[ -x "$(command -v dust)" ] && alias du="dust"
+[ -x "$(command -v mcfly)" ] && eval "$(mcfly init zsh)"
+[ -x "$(command -v btm)" ] && alias top="btm -c"
+[ -x "$(command -v gping)" ] && alias ping="gping"
+[ -x "$(command -v zoxide)" ] && eval "$(zoxide init --cmd cd zsh)"
 
 move_to_trash () {
   if [ -d ~/.Trash ]; then
@@ -41,7 +50,7 @@ move_to_trash () {
   mv "$@" ~/.Trash
 }
 
-alias ls="ls --color"
+[ ! -x "$(command -v exa)" ] && alias ls="ls --color"
 alias rm="move_to_trash"
 alias cd="cd -P"
 
