@@ -35,7 +35,7 @@ export SCCACHE_CACHE_SIZE="100G"
 [ -x "$(command -v zoxide)" ] && eval "$(zoxide init --cmd cd zsh)"
 
 move_to_trash () {
-  if [ -d ~/.Trash ]; then
+  if [ ! -d ~/.Trash ]; then
     mkdir -p ~/.Trash
   fi
 
@@ -52,7 +52,6 @@ move_to_trash () {
 
 [ ! -x "$(command -v exa)" ] && alias ls="ls --color"
 alias rm="move_to_trash"
-alias cd="cd -P"
 
 alias dev='cd $DEV'
 alias llvm='cd $LLVM'
