@@ -200,9 +200,9 @@ function rust {
   crates+=("ripgrep")
   crates+=("sccache")
   crates+=("tokei")
-  crates+=("zoxide --locked")
+  crates+=("zoxide")
 
-  for crate in $crates[@]; do cargo install $crate; done
+  for crate in ${crates[@]}; do cargo install $crate; done
 }
 
 platform="$(uname)"
